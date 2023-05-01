@@ -172,13 +172,24 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
 
             LOG.info(String.format("SAML request authenticated for user %s/%s", user.getUsername(), user.getName()));
 
-            return HttpAuthenticationResult.authenticated(
-                    new ServerPrincipal(user.getRealm(), user.getUsername(), null, settings.isCreateUsersAutomatically(), new HashMap<>()),
-                    true).withRedirect(request.getContextPath() + "/");
+            return authenticated(request, settings, user);
         } catch (Exception e) {
             LOG.error(e);
             return sendUnauthorizedRequest(request, response, String.format("Failed to authenticate request: %s", e.getMessage()));
         }
+    }
+
+    private static String getRedirectUrl(HttpServletRequest request) {
+        String url = (String)request.getSession().getAttribute("URL_KEY");
+        request.getSession().removeAttribute("URL_KEY");
+        return url != null ? url : request.getContextPath() + "/";
+    }
+
+    @NotNull
+    private static HttpAuthenticationResult authenticated(@NotNull HttpServletRequest request, SamlPluginSettings settings, SUser user) {
+        return HttpAuthenticationResult.authenticated(
+                new ServerPrincipal(user.getRealm(), user.getUsername(), null, settings.isCreateUsersAutomatically(), new HashMap<>()),
+                true).withRedirect(getRedirectUrl(request));
     }
 
     @NotNull
