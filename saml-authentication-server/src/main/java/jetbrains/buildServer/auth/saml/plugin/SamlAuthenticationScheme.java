@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.xpath.XPathException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -180,8 +181,12 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     }
 
     private static String getRedirectUrl(HttpServletRequest request) {
-        String url = (String)request.getSession().getAttribute("URL_KEY");
-        request.getSession().removeAttribute("URL_KEY");
+        HttpSession session = request.getSession();
+        if (session == null) {
+            return request.getContextPath() + "/";
+        }
+        String url = (String) session.getAttribute("URL_KEY");
+        session.removeAttribute("URL_KEY");
         return url != null ? url : request.getContextPath() + "/";
     }
 
