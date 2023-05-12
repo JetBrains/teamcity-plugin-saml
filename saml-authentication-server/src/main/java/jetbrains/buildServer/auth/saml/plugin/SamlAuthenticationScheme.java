@@ -87,6 +87,13 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     public void sendAuthnRequest(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, SettingsException {
         var samlSettings = buildSettings();
         var auth = new Auth(samlSettings, request, response);
+        if (request.getSession() != null) {
+            Object urlKey = request.getSession().getAttribute("URL_KEY");
+            if (urlKey instanceof String) {
+                auth.login((String)urlKey);
+                return;
+            }
+        }
         auth.login();
     }
 
@@ -105,6 +112,7 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
         LOG.debug(String.format("SAML: incoming authentication request %s %s",request.getMethod(), request.getRequestURL()));
 
         var saml = request.getParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER);
+        var relayState = request.getParameter("RelayState");
 
         if (StringUtil.isEmpty(saml)) {
             LOG.debug(String.format("%s parameter not found - returning N/A", SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER));
@@ -173,7 +181,7 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
 
             LOG.info(String.format("SAML request authenticated for user %s/%s", user.getUsername(), user.getName()));
 
-            return authenticated(request, settings, user);
+            return authenticated(request, settings, user, relayState);
         } catch (Exception e) {
             LOG.error(e);
             return sendUnauthorizedRequest(request, response, String.format("Failed to authenticate request: %s", e.getMessage()));
@@ -191,10 +199,10 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     }
 
     @NotNull
-    private static HttpAuthenticationResult authenticated(@NotNull HttpServletRequest request, SamlPluginSettings settings, SUser user) {
+    private static HttpAuthenticationResult authenticated(@NotNull HttpServletRequest request, SamlPluginSettings settings, SUser user, String relayState) {
         return HttpAuthenticationResult.authenticated(
                 new ServerPrincipal(user.getRealm(), user.getUsername(), null, settings.isCreateUsersAutomatically(), new HashMap<>()),
-                true).withRedirect(getRedirectUrl(request));
+                true).withRedirect(relayState != null ? relayState : getRedirectUrl(request));
     }
 
     @NotNull
