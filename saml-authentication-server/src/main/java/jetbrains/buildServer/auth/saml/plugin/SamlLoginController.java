@@ -6,7 +6,6 @@ import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.web.openapi.WebControllerManager;
-import jetbrains.buildServer.web.util.UserAgentUtil;
 import jetbrains.buildServer.web.util.WebUtil;
 import lombok.var;
 import org.apache.commons.validator.routines.RegexValidator;
