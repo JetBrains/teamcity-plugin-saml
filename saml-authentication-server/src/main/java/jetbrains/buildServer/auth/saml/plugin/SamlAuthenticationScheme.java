@@ -87,16 +87,18 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     public void sendAuthnRequest(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, SettingsException {
         var samlSettings = buildSettings();
         var auth = new Auth(samlSettings, request, response);
-        Loggers.SERVER.warn("------------");
         if (request.getSession() != null) {
-            Loggers.SERVER.warn(request.getSession().getAttributeNames() + "");
-            Loggers.SERVER.warn(request.getSession().getAttribute("URL_KEY") + "");
-            if (request.getSession().getAttribute("URL_KEY") != null) {
-                auth.login((String)request.getSession().getAttribute("URL_KEY"));
+            Object urlKey = request.getSession().getAttribute("URL_KEY");
+            if (urlKey instanceof String) {
+                auth.login(getURLWithContextPath(request) + "/" + urlKey);
                 return;
             }
         }
         auth.login();
+    }
+
+    public static String getURLWithContextPath(HttpServletRequest request) {
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 
     public Metadata generateSPMetadata() throws IOException, CertificateEncodingException {
@@ -111,11 +113,6 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     @NotNull
     @Override
     public HttpAuthenticationResult processAuthenticationRequest(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Map<String, String> properties) throws IOException {
-        Loggers.SERVER.warn("------------");
-        if (request.getSession() != null) {
-            Loggers.SERVER.warn(request.getSession().getAttributeNames() + "");
-            Loggers.SERVER.warn(request.getSession().getAttribute("URL_KEY") + "");
-        }
         LOG.debug(String.format("SAML: incoming authentication request %s %s",request.getMethod(), request.getRequestURL()));
 
         var saml = request.getParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER);
@@ -194,23 +191,11 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
         }
     }
 
-    private static String getRedirectUrl(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        if (session == null) {
-            Loggers.SERVER.info("SESSION IS NULL!");
-            return request.getContextPath() + "/";
-        }
-        String url = (String) session.getAttribute("SAML_URL_KEY");
-        Loggers.SERVER.info("SESSION HAS " + url);
-        session.removeAttribute("SAML_URL_KEY");
-        return url != null ? url : request.getContextPath() + "/";
-    }
-
     @NotNull
     private static HttpAuthenticationResult authenticated(@NotNull HttpServletRequest request, SamlPluginSettings settings, SUser user) {
         return HttpAuthenticationResult.authenticated(
                 new ServerPrincipal(user.getRealm(), user.getUsername(), null, settings.isCreateUsersAutomatically(), new HashMap<>()),
-                true).withRedirect(getRedirectUrl(request));
+                true).withRedirect(request.getContextPath() + "/");
     }
 
     @NotNull
