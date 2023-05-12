@@ -26,12 +26,12 @@ import jetbrains.buildServer.web.util.WebUtil;
 import lombok.var;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.xml.xpath.XPathException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -85,15 +85,16 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     }
 
     public void sendAuthnRequest(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, SettingsException {
-        var samlSettings = buildSettings();
-        var auth = new Auth(samlSettings, request, response);
+        String redirectUrl = null;
         if (request.getSession() != null) {
             Object urlKey = request.getSession().getAttribute("URL_KEY");
             if (urlKey instanceof String) {
-                auth.login(getURLWithContextPath(request) + "/" + urlKey);
-                return;
+                redirectUrl = getURLWithContextPath(request) + "/" + urlKey;
             }
         }
+
+        var samlSettings = buildSettings(redirectUrl);
+        var auth = new Auth(samlSettings, request, response);
         auth.login();
     }
 
@@ -102,7 +103,7 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     }
 
     public Metadata generateSPMetadata() throws IOException, CertificateEncodingException {
-        var saml2Settings = buildSettings();
+        var saml2Settings = buildSettings(null);
         var metadata = new Metadata(saml2Settings);
 
         LOG.debug(String.format("SAML: SP Metadata generated %s", metadata.getMetadataString()));
@@ -125,7 +126,7 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
         try {
             var settings = this.settingsStorage.load();
 
-            var saml2Settings = buildSettings();
+            var saml2Settings = buildSettings(null);
             var auth = new Auth(saml2Settings, request, response);
 
             auth.processResponse();
@@ -298,7 +299,11 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
         return HttpAuthenticationResult.unauthenticated();
     }
 
-    public URL getCallbackUrl() throws MalformedURLException {
+    public URL getCallbackUrl(@Nullable String redirectUrl) throws MalformedURLException {
+        if (redirectUrl != null) {
+            return new URL(redirectUrl);
+        }
+
         String result = WebUtil.combineContextPath(rootUrlHolder.getRootUrl(), SamlPluginConstants.SAML_CALLBACK_URL.replace("**", ""));
         if (result.startsWith("/")) {
             result = result.substring(1);
@@ -307,14 +312,14 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
         return new URL(result);
     }
 
-    public Saml2Settings buildSettings() throws IOException {
+    public Saml2Settings buildSettings(@Nullable String redirectUrl) throws IOException {
         var pluginSettings = settingsStorage.load();
 
         Map<String, Object> samlData = new HashMap<>();
         samlData.put(SettingsBuilder.IDP_SINGLE_SIGN_ON_SERVICE_URL_PROPERTY_KEY, pluginSettings.getSsoEndpoint());
         samlData.put(SettingsBuilder.IDP_ENTITYID_PROPERTY_KEY, pluginSettings.getIssuerUrl());
         samlData.put(SettingsBuilder.SP_ENTITYID_PROPERTY_KEY, pluginSettings.getEntityId());
-        samlData.put(SettingsBuilder.SP_ASSERTION_CONSUMER_SERVICE_URL_PROPERTY_KEY, getCallbackUrl());
+        samlData.put(SettingsBuilder.SP_ASSERTION_CONSUMER_SERVICE_URL_PROPERTY_KEY, getCallbackUrl(redirectUrl));
         samlData.put(SettingsBuilder.IDP_X509CERT_PROPERTY_KEY, pluginSettings.getPublicCertificate());
         samlData.put(SettingsBuilder.COMPRESS_REQUEST, pluginSettings.isCompressRequest());
         samlData.put(SettingsBuilder.STRICT_PROPERTY_KEY, pluginSettings.isStrict());

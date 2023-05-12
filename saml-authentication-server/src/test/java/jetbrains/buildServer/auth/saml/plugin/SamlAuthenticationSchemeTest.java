@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
@@ -97,19 +96,19 @@ public class SamlAuthenticationSchemeTest {
     @Test
     public void shouldGenerateValidCallbackUrl() throws MalformedURLException {
         when(this.rootUrlHolder.getRootUrl()).thenReturn("http://dev.lan");
-        var callbackUrl = scheme.getCallbackUrl();
+        var callbackUrl = scheme.getCallbackUrl(null);
         assertThat(callbackUrl.toString(), equalTo("http://dev.lan/app/saml/callback/"));
 
         when(this.rootUrlHolder.getRootUrl()).thenReturn("http://dev.lan/");
-        callbackUrl = scheme.getCallbackUrl();
+        callbackUrl = scheme.getCallbackUrl(null);
         assertThat(callbackUrl.toString(), equalTo("http://dev.lan/app/saml/callback/"));
 
         when(this.rootUrlHolder.getRootUrl()).thenReturn("https://dev.lan/teamcity");
-        callbackUrl = scheme.getCallbackUrl();
+        callbackUrl = scheme.getCallbackUrl(null);
         assertThat(callbackUrl.toString(), equalTo("https://dev.lan/teamcity/app/saml/callback/"));
 
         when(this.rootUrlHolder.getRootUrl()).thenReturn("https://dev.lan/teamcity/");
-        callbackUrl = scheme.getCallbackUrl();
+        callbackUrl = scheme.getCallbackUrl(null);
         assertThat(callbackUrl.toString(), equalTo("https://dev.lan/teamcity/app/saml/callback/"));
     }
 
@@ -486,7 +485,7 @@ public class SamlAuthenticationSchemeTest {
 
         this.settingsStorage.save(settings);
 
-        Saml2Settings saml2Settings = this.scheme.buildSettings();
+        Saml2Settings saml2Settings = this.scheme.buildSettings(null);
         assertThat(saml2Settings.getIdpx509cert(), is(notNullValue()));
         assertThat(saml2Settings.getIdpx509certMulti().size(), equalTo(1));
     }

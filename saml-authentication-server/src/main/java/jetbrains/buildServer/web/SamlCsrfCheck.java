@@ -36,7 +36,7 @@ public class SamlCsrfCheck implements CsrfCheck {
 
             Loggers.AUTH.debug("Evaluating SAML CORS filter conditions for " + request.getRequestURL());
 
-            URL callbackUrl = scheme.getCallbackUrl();
+            URL callbackUrl = scheme.getCallbackUrl(null);
             var requestURL = new URL(request.getRequestURL().toString());
 
             if (callbackUrl == null ) {

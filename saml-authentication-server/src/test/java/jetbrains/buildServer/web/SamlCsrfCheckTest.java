@@ -3,9 +3,6 @@ package jetbrains.buildServer.web;
 import jetbrains.buildServer.auth.saml.plugin.InMemorySamlPluginSettingsStorage;
 import jetbrains.buildServer.auth.saml.plugin.SamlAuthenticationScheme;
 import jetbrains.buildServer.auth.saml.plugin.SamlPluginConstants;
-import jetbrains.buildServer.serverSide.auth.AuthModule;
-import jetbrains.buildServer.serverSide.auth.AuthModuleType;
-import jetbrains.buildServer.serverSide.auth.LoginConfiguration;
 import lombok.var;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,8 +11,6 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -33,7 +28,7 @@ public class SamlCsrfCheckTest {
         Mockito.reset();
         this.scheme = mock(SamlAuthenticationScheme.class);
         when(this.scheme.isConfigured()).thenReturn(true);
-        when(this.scheme.getCallbackUrl()).thenReturn(new URL("http://someurl.local"));
+        when(this.scheme.getCallbackUrl(null)).thenReturn(new URL("http://someurl.local"));
 
         InMemorySamlPluginSettingsStorage settingsStorage = new InMemorySamlPluginSettingsStorage();
 
@@ -44,7 +39,7 @@ public class SamlCsrfCheckTest {
     public void whenSAMLRequestIsMadeToCallbackURLItIsSafe() throws MalformedURLException {
         var request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("POST");
-        StringBuffer URL = new StringBuffer(this.scheme.getCallbackUrl().toString());
+        StringBuffer URL = new StringBuffer(this.scheme.getCallbackUrl(null).toString());
         when(request.getRequestURL()).thenReturn(URL);
         when(request.getParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER)).thenReturn("SAMLResponse=1");
 
@@ -59,7 +54,7 @@ public class SamlCsrfCheckTest {
         when(request.getMethod()).thenReturn("POST");
         String requestUrl = "https://somesite.local/app/callback";
         String callbackUrl = requestUrl + "/";
-        when(this.scheme.getCallbackUrl()).thenReturn(new URL(callbackUrl));
+        when(this.scheme.getCallbackUrl(null)).thenReturn(new URL(callbackUrl));
         when(request.getRequestURL()).thenReturn(new StringBuffer(requestUrl));
         when(request.getParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER)).thenReturn("SAMLResponse=1");
 
@@ -70,7 +65,7 @@ public class SamlCsrfCheckTest {
         callbackUrl = requestUrl;
         requestUrl = callbackUrl + "/";
         when(request.getRequestURL()).thenReturn(new StringBuffer(requestUrl));
-        when(this.scheme.getCallbackUrl()).thenReturn(new URL(callbackUrl));
+        when(this.scheme.getCallbackUrl(null)).thenReturn(new URL(callbackUrl));
         result = this.check.isSafe(request);
         assertThat(result.isSafe(), equalTo(true));
     }
