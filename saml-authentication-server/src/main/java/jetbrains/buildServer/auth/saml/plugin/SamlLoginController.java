@@ -65,9 +65,9 @@ public class SamlLoginController extends BaseController {
             }
 
             LOG.info(String.format("Building AuthNRequest to %s", endpoint));
-            if (UserAgentUtil.isBrowser(httpServletRequest)) {
+//            if (UserAgentUtil.isBrowser(httpServletRequest)) {
                 httpServletRequest.getSession().setAttribute("URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
-            }
+//            }
             this.samlAuthenticationScheme.sendAuthnRequest(httpServletRequest, httpServletResponse);
             return null;
         } catch (Exception e) {
