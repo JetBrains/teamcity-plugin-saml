@@ -12,6 +12,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
 
 public class SamlCallbackController extends BaseController {
 
@@ -30,6 +31,12 @@ public class SamlCallbackController extends BaseController {
     protected ModelAndView doHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
         LOG.debug(String.format("SAML callback initiated at %s", request.getRequestURL()));
         String relayState = request.getParameter("RelayState");
+        Loggers.SERVER.warn("-----------");
+        Enumeration<String> parameterNames = request.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            Loggers.SERVER.warn(request.getParameter(parameterNames.nextElement()));
+        }
+        Loggers.SERVER.warn("-----------");
         if (relayState != null) {
             return new ModelAndView(new RedirectView(relayState));
         }
