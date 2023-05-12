@@ -87,6 +87,15 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     public void sendAuthnRequest(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException, SettingsException {
         var samlSettings = buildSettings();
         var auth = new Auth(samlSettings, request, response);
+        Loggers.SERVER.warn("------------");
+        if (request.getSession() != null) {
+            Loggers.SERVER.warn(request.getSession().getAttributeNames() + "");
+            Loggers.SERVER.warn(request.getSession().getAttribute("URL_KEY") + "");
+            if (request.getSession().getAttribute("URL_KEY") != null) {
+                auth.login((String)request.getSession().getAttribute("URL_KEY"));
+                return;
+            }
+        }
         auth.login();
     }
 
