@@ -29,6 +29,10 @@ public class SamlCallbackController extends BaseController {
     @Override
     protected ModelAndView doHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
         LOG.debug(String.format("SAML callback initiated at %s", request.getRequestURL()));
+        String relayState = request.getParameter("RelayState");
+        if (relayState != null) {
+            return new ModelAndView(new RedirectView(relayState));
+        }
         return new ModelAndView(new RedirectView("/"));
     }
 }
