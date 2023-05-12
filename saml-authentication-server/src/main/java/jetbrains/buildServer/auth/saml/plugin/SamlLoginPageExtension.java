@@ -2,6 +2,7 @@ package jetbrains.buildServer.auth.saml.plugin;
 
 import jetbrains.buildServer.RootUrlHolder;
 import jetbrains.buildServer.auth.saml.plugin.pojo.SamlPluginSettings;
+import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.auth.LoginConfiguration;
 import jetbrains.buildServer.web.openapi.PagePlaces;
 import jetbrains.buildServer.web.openapi.PlaceId;
@@ -11,6 +12,7 @@ import jetbrains.buildServer.web.util.WebUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
 
@@ -54,6 +56,7 @@ public class SamlLoginPageExtension extends SimplePageExtension {
         }
         model.put("samlSettings", samlSettings);
         model.put("loginUrl", getLoginUrl());
+        saveURL(request);
     }
 
     public String getLoginUrl() {
@@ -63,5 +66,13 @@ public class SamlLoginPageExtension extends SimplePageExtension {
         }
 
         return result;
+    }
+
+    private void saveURL(@NotNull HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession();
+        if (session != null) {
+            Loggers.SERVER.info("Saving " + WebUtil.getRequestUrl(httpServletRequest) + " to session.SAML_URL_KEY");
+            session.setAttribute("SAML_URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
+        }
     }
 }

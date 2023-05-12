@@ -6,7 +6,6 @@ import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.web.openapi.WebControllerManager;
-import jetbrains.buildServer.web.util.WebUtil;
 import lombok.var;
 import org.apache.commons.validator.routines.RegexValidator;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -16,7 +15,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 public class SamlLoginController extends BaseController {
 
@@ -65,20 +63,11 @@ public class SamlLoginController extends BaseController {
             }
 
             LOG.info(String.format("Building AuthNRequest to %s", endpoint));
-            saveURL(httpServletRequest);
             this.samlAuthenticationScheme.sendAuthnRequest(httpServletRequest, httpServletResponse);
             return null;
         } catch (Exception e) {
             LOG.error(String.format("Error while initiating SSO login redirect: %s", e.getMessage()), e);
             throw e;
-        }
-    }
-
-    private void saveURL(@NotNull HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession();
-        if (session != null) {
-            LOG.info("Saving " + WebUtil.getRequestUrl(httpServletRequest) + " to session.URL_KEY");
-            session.setAttribute("URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
         }
     }
 }

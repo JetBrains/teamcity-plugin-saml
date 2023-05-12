@@ -186,9 +186,9 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
             Loggers.SERVER.info("SESSION IS NULL!");
             return request.getContextPath() + "/";
         }
-        String url = (String) session.getAttribute("URL_KEY");
+        String url = (String) session.getAttribute("SAML_URL_KEY");
         Loggers.SERVER.info("SESSION HAS " + url);
-        session.removeAttribute("URL_KEY");
+        session.removeAttribute("SAML_URL_KEY");
         return url != null ? url : request.getContextPath() + "/";
     }
 
