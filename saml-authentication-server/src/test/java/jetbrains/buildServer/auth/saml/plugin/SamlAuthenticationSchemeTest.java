@@ -96,19 +96,19 @@ public class SamlAuthenticationSchemeTest {
     @Test
     public void shouldGenerateValidCallbackUrl() throws MalformedURLException {
         when(this.rootUrlHolder.getRootUrl()).thenReturn("http://dev.lan");
-        var callbackUrl = scheme.getCallbackUrl(null);
+        var callbackUrl = scheme.getCallbackUrl();
         assertThat(callbackUrl.toString(), equalTo("http://dev.lan/app/saml/callback/"));
 
         when(this.rootUrlHolder.getRootUrl()).thenReturn("http://dev.lan/");
-        callbackUrl = scheme.getCallbackUrl(null);
+        callbackUrl = scheme.getCallbackUrl();
         assertThat(callbackUrl.toString(), equalTo("http://dev.lan/app/saml/callback/"));
 
         when(this.rootUrlHolder.getRootUrl()).thenReturn("https://dev.lan/teamcity");
-        callbackUrl = scheme.getCallbackUrl(null);
+        callbackUrl = scheme.getCallbackUrl();
         assertThat(callbackUrl.toString(), equalTo("https://dev.lan/teamcity/app/saml/callback/"));
 
         when(this.rootUrlHolder.getRootUrl()).thenReturn("https://dev.lan/teamcity/");
-        callbackUrl = scheme.getCallbackUrl(null);
+        callbackUrl = scheme.getCallbackUrl();
         assertThat(callbackUrl.toString(), equalTo("https://dev.lan/teamcity/app/saml/callback/"));
     }
 
@@ -485,7 +485,7 @@ public class SamlAuthenticationSchemeTest {
 
         this.settingsStorage.save(settings);
 
-        Saml2Settings saml2Settings = this.scheme.buildSettings(null);
+        Saml2Settings saml2Settings = this.scheme.buildSettings();
         assertThat(saml2Settings.getIdpx509cert(), is(notNullValue()));
         assertThat(saml2Settings.getIdpx509certMulti().size(), equalTo(1));
     }

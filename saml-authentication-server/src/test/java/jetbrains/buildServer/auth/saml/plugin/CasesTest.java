@@ -43,7 +43,7 @@ public class CasesTest {
 
         storage.save(settings);
 
-        Saml2Settings saml2Settings = scheme.buildSettings(null);
+        Saml2Settings saml2Settings = scheme.buildSettings();
 
         var request = new HttpRequest("https://1057teamcity.sapphirepri.com/app/saml/callback/", "");
         request = request.addParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER, URLDecoder.decode(
@@ -77,7 +77,7 @@ public class CasesTest {
         scheme.importMetadataIntoSettings(metadataXml, settings);
         storage.save(settings);
 
-        var saml2Settings = scheme.buildSettings(null);
+        var saml2Settings = scheme.buildSettings();
 
         var request = new HttpRequest("https://teamcity-ssotest.pri.services-exchange.com" + "/app/saml/callback/", "");
         request = request.addParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER,

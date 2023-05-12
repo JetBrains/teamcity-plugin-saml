@@ -133,7 +133,7 @@ public class SamlSettingsJsonController extends BaseJsonController {
 
         try {
             var samlPluginSettings = settingsStorage.load();
-            var callbackUrl = this.samlAuthenticationScheme.getCallbackUrl(null);
+            var callbackUrl = this.samlAuthenticationScheme.getCallbackUrl();
             samlPluginSettings.setSsoCallbackUrl(callbackUrl.toString());
 
             if (StringUtil.isEmpty(samlPluginSettings.getEntityId())) {
