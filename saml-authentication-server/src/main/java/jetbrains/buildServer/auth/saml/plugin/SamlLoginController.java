@@ -6,6 +6,8 @@ import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.web.openapi.WebControllerManager;
+import jetbrains.buildServer.web.util.UserAgentUtil;
+import jetbrains.buildServer.web.util.WebUtil;
 import lombok.var;
 import org.apache.commons.validator.routines.RegexValidator;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -63,6 +65,9 @@ public class SamlLoginController extends BaseController {
             }
 
             LOG.info(String.format("Building AuthNRequest to %s", endpoint));
+            if (UserAgentUtil.isBrowser(httpServletRequest)) {
+                httpServletRequest.getSession().setAttribute("URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
+            }
             this.samlAuthenticationScheme.sendAuthnRequest(httpServletRequest, httpServletResponse);
             return null;
         } catch (Exception e) {
