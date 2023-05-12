@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class SamlLoginController extends BaseController {
 
@@ -65,12 +66,19 @@ public class SamlLoginController extends BaseController {
             }
 
             LOG.info(String.format("Building AuthNRequest to %s", endpoint));
-            httpServletRequest.getSession().setAttribute("URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
+            saveURL(httpServletRequest);
             this.samlAuthenticationScheme.sendAuthnRequest(httpServletRequest, httpServletResponse);
             return null;
         } catch (Exception e) {
             LOG.error(String.format("Error while initiating SSO login redirect: %s", e.getMessage()), e);
             throw e;
+        }
+    }
+
+    private static void saveURL(@NotNull HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession();
+        if (session != null) {
+            session.setAttribute("URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
         }
     }
 }
