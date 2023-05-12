@@ -102,6 +102,11 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     @NotNull
     @Override
     public HttpAuthenticationResult processAuthenticationRequest(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Map<String, String> properties) throws IOException {
+        Loggers.SERVER.warn("------------");
+        if (request.getSession() != null) {
+            Loggers.SERVER.warn(request.getSession().getAttributeNames() + "");
+            Loggers.SERVER.warn(request.getSession().getAttribute("URL_KEY") + "");
+        }
         LOG.debug(String.format("SAML: incoming authentication request %s %s",request.getMethod(), request.getRequestURL()));
 
         var saml = request.getParameter(SamlPluginConstants.SAML_RESPONSE_REQUEST_PARAMETER);
