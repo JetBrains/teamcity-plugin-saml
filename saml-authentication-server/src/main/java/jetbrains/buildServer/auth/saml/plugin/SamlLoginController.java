@@ -74,9 +74,10 @@ public class SamlLoginController extends BaseController {
         }
     }
 
-    private static void saveURL(@NotNull HttpServletRequest httpServletRequest) {
+    private void saveURL(@NotNull HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession();
         if (session != null) {
+            LOG.info("Saving " + WebUtil.getRequestUrl(httpServletRequest) + " to session.URL_KEY");
             session.setAttribute("URL_KEY", WebUtil.getRequestUrl(httpServletRequest));
         }
     }

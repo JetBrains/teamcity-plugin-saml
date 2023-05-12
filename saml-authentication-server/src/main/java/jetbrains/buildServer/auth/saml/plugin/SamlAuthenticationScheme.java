@@ -183,9 +183,11 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     private static String getRedirectUrl(HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (session == null) {
+            Loggers.SERVER.info("SESSION IS NULL!");
             return request.getContextPath() + "/";
         }
         String url = (String) session.getAttribute("URL_KEY");
+        Loggers.SERVER.info("SESSION HAS " + url);
         session.removeAttribute("URL_KEY");
         return url != null ? url : request.getContextPath() + "/";
     }
