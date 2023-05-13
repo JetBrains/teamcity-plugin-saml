@@ -19,7 +19,7 @@ public class SamlCallbackController extends BaseController {
 
     public SamlCallbackController(@NotNull SBuildServer server,
                                   @NotNull WebControllerManager webControllerManager
-    ) {
+                                  ) {
         super(server);
 
         webControllerManager.registerController(SamlPluginConstants.SAML_CALLBACK_URL, this);
@@ -29,7 +29,6 @@ public class SamlCallbackController extends BaseController {
     @Override
     protected ModelAndView doHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
         LOG.debug(String.format("SAML callback initiated at %s", request.getRequestURL()));
-
         return new ModelAndView(new RedirectView("/"));
     }
 }

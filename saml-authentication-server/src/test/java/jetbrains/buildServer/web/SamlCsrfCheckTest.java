@@ -3,6 +3,9 @@ package jetbrains.buildServer.web;
 import jetbrains.buildServer.auth.saml.plugin.InMemorySamlPluginSettingsStorage;
 import jetbrains.buildServer.auth.saml.plugin.SamlAuthenticationScheme;
 import jetbrains.buildServer.auth.saml.plugin.SamlPluginConstants;
+import jetbrains.buildServer.serverSide.auth.AuthModule;
+import jetbrains.buildServer.serverSide.auth.AuthModuleType;
+import jetbrains.buildServer.serverSide.auth.LoginConfiguration;
 import lombok.var;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +14,8 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
