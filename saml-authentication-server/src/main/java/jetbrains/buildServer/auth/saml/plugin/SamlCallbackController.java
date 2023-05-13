@@ -1,7 +1,6 @@
 package jetbrains.buildServer.auth.saml.plugin;
 
 import com.intellij.openapi.diagnostic.Logger;
-import jetbrains.buildServer.controllers.AuthorizationInterceptor;
 import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.SBuildServer;
@@ -19,8 +18,7 @@ public class SamlCallbackController extends BaseController {
     private final Logger LOG = Loggers.AUTH;
 
     public SamlCallbackController(@NotNull SBuildServer server,
-                                  @NotNull WebControllerManager webControllerManager,
-                                  @NotNull AuthorizationInterceptor interceptor
+                                  @NotNull WebControllerManager webControllerManager
     ) {
         super(server);
 
