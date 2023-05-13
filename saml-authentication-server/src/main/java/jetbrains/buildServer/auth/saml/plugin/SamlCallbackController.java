@@ -1,6 +1,7 @@
 package jetbrains.buildServer.auth.saml.plugin;
 
 import com.intellij.openapi.diagnostic.Logger;
+import jetbrains.buildServer.controllers.AuthorizationInterceptor;
 import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.SBuildServer;
@@ -19,11 +20,13 @@ public class SamlCallbackController extends BaseController {
     private final Logger LOG = Loggers.AUTH;
 
     public SamlCallbackController(@NotNull SBuildServer server,
-                                  @NotNull WebControllerManager webControllerManager
-                                  ) {
+                                  @NotNull WebControllerManager webControllerManager,
+                                  @NotNull AuthorizationInterceptor interceptor
+    ) {
         super(server);
 
         webControllerManager.registerController(SamlPluginConstants.SAML_CALLBACK_URL, this);
+        interceptor.addPathNotRequiringAuth(SamlPluginConstants.SAML_CALLBACK_URL);
     }
 
     @Nullable
@@ -31,12 +34,16 @@ public class SamlCallbackController extends BaseController {
     protected ModelAndView doHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
         LOG.debug(String.format("SAML callback initiated at %s", request.getRequestURL()));
 
+        String samlResponse = request.getParameter("SAMLResponse");
         String relayState = request.getParameter("RelayState");
+
         Loggers.SERVER.warn("-----------");
         Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             Loggers.SERVER.warn(request.getParameter(parameterNames.nextElement()));
         }
+        Loggers.SERVER.warn(samlResponse);
+        Loggers.SERVER.warn(relayState);
         Loggers.SERVER.warn("-----------");
         if (relayState != null) {
             return new ModelAndView(new RedirectView(relayState));
