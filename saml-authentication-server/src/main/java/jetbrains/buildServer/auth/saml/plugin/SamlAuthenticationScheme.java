@@ -97,10 +97,6 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
         auth.login();
     }
 
-    public static String getURLWithContextPath(HttpServletRequest request) {
-        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-    }
-
     public Metadata generateSPMetadata() throws IOException, CertificateEncodingException {
         var saml2Settings = buildSettings();
         var metadata = new Metadata(saml2Settings);
@@ -195,11 +191,9 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     private static String getRedirectUrl(HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (session == null) {
-            Loggers.SERVER.info("SESSION IS NULL!");
             return request.getContextPath() + "/";
         }
         String url = (String) session.getAttribute("URL_KEY");
-        Loggers.SERVER.info("SESSION HAS " + url);
         session.removeAttribute("URL_KEY");
         return url != null ? url : request.getContextPath() + "/";
     }
