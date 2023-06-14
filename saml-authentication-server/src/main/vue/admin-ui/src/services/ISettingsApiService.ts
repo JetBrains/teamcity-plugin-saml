@@ -45,6 +45,7 @@ export interface SamlSettings {
 
     emailAttributeMapping?: SamlAttributeMapping;
     nameAttributeMapping?: SamlAttributeMapping;
+    vcsUsernameAttributeMapping?: SamlAttributeMapping;
 }
 
 export interface ISettingsApiService {
