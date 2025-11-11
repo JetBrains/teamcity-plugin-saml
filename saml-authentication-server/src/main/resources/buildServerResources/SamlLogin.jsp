@@ -5,7 +5,7 @@
 <jsp:useBean id="samlSettings" scope="request" type="jetbrains.buildServer.auth.saml.plugin.pojo.SamlPluginSettings"/>
 <jsp:useBean id="loginUrl" scope="request" type="java.lang.String"/>
 
-<c:if test="${samlSettings.hideLoginForm}">
+<c:if test="${samlSettings.hideLoginForm && !(samlSettings.enableFallback && param.auth_fallback != null)}">
     <style>
         .loginForm {
             display: none;

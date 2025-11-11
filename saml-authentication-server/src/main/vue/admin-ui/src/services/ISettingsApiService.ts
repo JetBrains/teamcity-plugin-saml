@@ -34,6 +34,7 @@ export interface SamlSettings {
     additionalCerts?: string[];
     ssoCallbackUrl?: string;
     hideLoginForm?: boolean;
+    enableFallback?: boolean;
     ssoLoginButtonName?: string;
     strict?: boolean;
 

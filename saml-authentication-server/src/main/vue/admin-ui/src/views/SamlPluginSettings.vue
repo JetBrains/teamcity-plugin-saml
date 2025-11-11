@@ -138,6 +138,11 @@
         <template v-slot:label>Hide Login Form</template>
         <template v-slot:content><input type="checkbox" v-model="settings.hideLoginForm"/></template>
       </RunnerFormRow>
+      <RunnerFormRow>
+        <template v-slot:label>Enable Fallback</template>
+        <template v-slot:content><input type="checkbox" v-model="settings.enableFallback"/></template>
+        <template v-slot:note>Show Login Form when URL contains auth_fallback parameter</template>
+      </RunnerFormRow>
 
       <RunnerFormRow>
         <template v-slot:label>Compress SAML Request</template>

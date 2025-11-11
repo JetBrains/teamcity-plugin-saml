@@ -19,7 +19,9 @@ The plug-in offers the following functionality:
 * Option to automatically assign and unassign TeamCity groups from users based on IdP group membership.
 * Wizard to ease configuration of connectivity to common IdP providers  (currently - Okta and Onelogin, more to come in future)
 * Option to import IdP metadata from XML
-* SdP Metadata generation   
+* SdP Metadata generation
+* Hiding Login Form
+* Fallback Login Form option
 
 Things the plug-in does NOT currently support (but they're on the roadmap):
 
