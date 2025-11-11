@@ -29,6 +29,8 @@ public class SamlPluginSettings {
 
     private boolean hideLoginForm;
 
+    private boolean enableFallback;
+
     @NotEmpty(message = "Login button name is mandatory")
     private String ssoLoginButtonName = "Login with SSO";
 
