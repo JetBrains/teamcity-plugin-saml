@@ -8,10 +8,6 @@ import jetbrains.buildServer.serverSide.IOGuard;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import jetbrains.buildServer.log.Loggers;
-import jetbrains.buildServer.serverSide.IOGuard;
-import lombok.Getter;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
