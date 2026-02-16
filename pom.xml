@@ -3,11 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.gromozeka.teamcity</groupId>
     <artifactId>saml-authentication</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <properties>
-        <teamcity-version-lib>2021.1</teamcity-version-lib>
+        <revision>${PluginVersion}</revision>
+        <PluginVersion>1.4.1-SNAPSHOT</PluginVersion>
+        <teamcity-version-lib>${teamcity.version}</teamcity-version-lib>
+        <teamcity.version>2021.1</teamcity.version>
         <teamcity-version-runtime>2021.1 EAP2</teamcity-version-runtime>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
