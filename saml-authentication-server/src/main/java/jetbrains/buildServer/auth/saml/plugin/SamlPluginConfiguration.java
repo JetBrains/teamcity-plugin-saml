@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 public class SamlPluginConfiguration {
 
     @Bean
-    SamlAuthenticationScheme samlAuthenticationScheme(LoginConfiguration loginConfiguration, SamlPluginSettingsStorage samlPluginSettingsStorage, UserModel userModel, UserGroupManager userGroupManager, RootUrlHolder rootUrlHolder) {
+    public SamlAuthenticationScheme samlAuthenticationScheme(LoginConfiguration loginConfiguration, SamlPluginSettingsStorage samlPluginSettingsStorage, UserModel userModel, UserGroupManager userGroupManager, RootUrlHolder rootUrlHolder) {
         SamlAuthenticationScheme samlAuthenticationScheme = new SamlAuthenticationScheme(rootUrlHolder, samlPluginSettingsStorage, userModel, userGroupManager, loginConfiguration);
         loginConfiguration.registerAuthModuleType(samlAuthenticationScheme);
 
@@ -32,37 +32,37 @@ public class SamlPluginConfiguration {
     }
 
     @Bean
-    SamlLoginPageExtension samlLoginPageExtension(@NotNull PagePlaces pagePlaces, @NotNull PluginDescriptor descriptor, @NotNull RootUrlHolder rootUrlHolder, SamlPluginSettingsStorage settingsStorage, SamlAuthenticationScheme scheme) {
+    public SamlLoginPageExtension samlLoginPageExtension(@NotNull PagePlaces pagePlaces, @NotNull PluginDescriptor descriptor, @NotNull RootUrlHolder rootUrlHolder, SamlPluginSettingsStorage settingsStorage, SamlAuthenticationScheme scheme) {
         return new SamlLoginPageExtension(pagePlaces, descriptor, rootUrlHolder, settingsStorage, scheme);
     }
 
     @Bean
-    SamlLoginController samlLoginController(SBuildServer server, WebControllerManager webControllerManager, AuthorizationInterceptor interceptor, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginSettingsStorage settingsStorage) {
+    public SamlLoginController samlLoginController(SBuildServer server, WebControllerManager webControllerManager, AuthorizationInterceptor interceptor, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginSettingsStorage settingsStorage) {
         return new SamlLoginController(server, webControllerManager, interceptor, samlAuthenticationScheme, settingsStorage);
     }
 
     @Bean
-    SamlCallbackController samlCallbackController(SBuildServer server, WebControllerManager webControllerManager) {
+    public SamlCallbackController samlCallbackController(SBuildServer server, WebControllerManager webControllerManager) {
         return new SamlCallbackController(server, webControllerManager);
     }
 
     @Bean
-    SamlMetadataController samlMetadataController(SBuildServer server, WebControllerManager webControllerManager, AuthorizationInterceptor interceptor, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginSettingsStorage settingsStorage) {
+    public SamlMetadataController samlMetadataController(SBuildServer server, WebControllerManager webControllerManager, AuthorizationInterceptor interceptor, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginSettingsStorage settingsStorage) {
         return new SamlMetadataController(server, webControllerManager, interceptor, samlAuthenticationScheme, settingsStorage);
     }
 
     @Bean
-    SamlPluginPermissionsManager samlPluginPermissionsManager() {
+    public SamlPluginPermissionsManager samlPluginPermissionsManager() {
         return new SamlPluginPermissionsManager();
     }
 
     @Bean
-    SamlSettingsAdminPage samlPluginAdminPage(@NotNull PagePlaces pagePlaces, @NotNull PluginDescriptor descriptor, SamlPluginSettingsStorage settingsStorage, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginPermissionsManager permissionsManager) {
+    public SamlSettingsAdminPage samlPluginAdminPage(@NotNull PagePlaces pagePlaces, @NotNull PluginDescriptor descriptor, SamlPluginSettingsStorage settingsStorage, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginPermissionsManager permissionsManager) {
         return new SamlSettingsAdminPage(pagePlaces, descriptor, settingsStorage, samlAuthenticationScheme, permissionsManager);
     }
 
     @Bean
-    SamlPluginSettingsStorage samlPluginSettingsStorage(ServerPaths serverPaths) throws IOException {
+    public SamlPluginSettingsStorage samlPluginSettingsStorage(ServerPaths serverPaths) throws IOException {
         var configPath = Paths.get(serverPaths.getConfigDir(), SamlPluginConstants.CONFIG_FILE_NAME);
         var samlPluginSettingsStorage = new SamlPluginSettingsStorageImpl(configPath);
         samlPluginSettingsStorage.init();
@@ -70,12 +70,12 @@ public class SamlPluginConfiguration {
     }
 
     @Bean
-    SamlSettingsJsonController samlSettingsAjaxController(WebControllerManager controllerManager, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginPermissionsManager permissionsManager) throws IOException {
+    public SamlSettingsJsonController samlSettingsAjaxController(WebControllerManager controllerManager, SamlAuthenticationScheme samlAuthenticationScheme, SamlPluginPermissionsManager permissionsManager) throws IOException {
         return new SamlSettingsJsonController(samlAuthenticationScheme, samlPluginSettingsStorage(null), permissionsManager, controllerManager);
     }
 
     @Bean
-    SamlCsrfCheck samlCsrfCheck(SamlAuthenticationScheme scheme, SamlPluginSettingsStorage settingsStorage) {
+    public SamlCsrfCheck samlCsrfCheck(SamlAuthenticationScheme scheme, SamlPluginSettingsStorage settingsStorage) {
         return new SamlCsrfCheck(scheme, settingsStorage);
     }
 
