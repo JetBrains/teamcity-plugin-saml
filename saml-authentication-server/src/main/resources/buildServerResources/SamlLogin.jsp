@@ -14,5 +14,5 @@
 </c:if>
 
 <div class="buttons">
-    <a href="<%=loginUrl%>" class="btn btn_primary">${samlSettings.ssoLoginButtonName}</a>
+    <a href="<c:out value='${loginUrl}'/>" class="btn btn_primary"><c:out value="${samlSettings.ssoLoginButtonName}"/></a>
 </div>
