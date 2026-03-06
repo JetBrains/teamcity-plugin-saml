@@ -57,6 +57,20 @@
             <!--                        <contextName>teamcity</contextName>-->
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <inherited>false</inherited>
+          <version>2.4.0</version>
+          <configuration>
+            <thirdPartyFilename>third-party-libraries.json</thirdPartyFilename>
+            <fileTemplate>${maven.multiModuleProjectDirectory}/license-third-party.ftl</fileTemplate>
+            <excludedGroups>org.jetbrains.teamcity.*|org.jetbrains.kotlin.*|org.jetbrains.kotlinx.*|org.jetbrains.intellij.*|com.jetbrains.intellij.*|jetbrains.ring.*|org.jetbrains.textmodifications|jmock|junit|org.jmock|org.hamcrest|org.mockito</excludedGroups>
+            <excludedArtifacts>jcip-annotations|jcommander|assertj-core|hamcrest-library</excludedArtifacts>
+            <force>true</force>
+            <includedScopes>compile,runtime</includedScopes>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
