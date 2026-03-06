@@ -43,6 +43,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
@@ -258,11 +260,44 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
     }
 
     private boolean matchPostfixes(String username, String allowedPostfixes) {
-        var postfixes = allowedPostfixes.split(",");
-        for(var postfix : postfixes) {
-            if (username.trim().endsWith(postfix.trim())) {
-                LOG.info(String.format("Username %s ends with valid postfix %s", username, postfix));
-                return true;
+        String normalizedUsername = username.trim();
+        String normalizedUsernameLowerCase = normalizedUsername.toLowerCase(Locale.ROOT);
+
+        var rules = allowedPostfixes.split(",");
+        for (var ruleRaw : rules) {
+            String rule = ruleRaw.trim();
+            if (rule.isEmpty()) {
+                continue;
+            }
+
+            if (rule.startsWith("regex:")) {
+                String regex = rule.substring("regex:".length()).trim();
+                if (regex.isEmpty()) {
+                    LOG.warn("Skipped empty regex rule in allowed postfixes");
+                    continue;
+                }
+
+                try {
+                    if (Pattern.compile(regex).matcher(normalizedUsername).matches()) {
+                        LOG.info(String.format("Username %s matches allowed regex rule %s", username, regex));
+                        return true;
+                    }
+                } catch (PatternSyntaxException e) {
+                    LOG.warn(String.format("Skipped invalid regex rule '%s': %s", regex, e.getMessage()));
+                }
+                continue;
+            }
+
+            String domainRule = rule.startsWith("@") ? rule.substring(1) : rule;
+            String expectedDomain = domainRule.toLowerCase(Locale.ROOT);
+
+            int atIndex = normalizedUsernameLowerCase.lastIndexOf('@');
+            if (atIndex > 0 && atIndex == normalizedUsernameLowerCase.indexOf('@') && atIndex < normalizedUsernameLowerCase.length() - 1) {
+                String usernameDomain = normalizedUsernameLowerCase.substring(atIndex + 1);
+                if (usernameDomain.equals(expectedDomain)) {
+                    LOG.info(String.format("Username %s has allowed email domain rule %s", username, rule));
+                    return true;
+                }
             }
         }
 

@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathException;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -208,6 +209,18 @@ public class SamlAuthenticationSchemeTest {
         assertThat(result.getType(), equalTo(HttpAuthenticationResult.Type.AUTHENTICATED));
 
         verify(userModel).createUserAccount(null, "new_user@somemail.com");
+    }
+
+    @Test
+    public void doesNotAllowBypassForSimilarEmailDomainSuffix() throws Exception {
+        assertThat(matchPostfixes("new_user@notsomemail.com", "somemail.com"), is(false));
+        assertThat(matchPostfixes("new_user@somemail.com", "somemail.com"), is(true));
+    }
+
+    @Test
+    public void supportsRegexRulesForUsernameRestriction() throws Exception {
+        assertThat(matchPostfixes("service-account-42", "regex:^service-account-[0-9]+$"), is(true));
+        assertThat(matchPostfixes("service-account-x", "regex:^service-account-[0-9]+$"), is(false));
     }
 
     @Test
@@ -553,6 +566,12 @@ public class SamlAuthenticationSchemeTest {
         var response = mock(HttpServletResponse.class);
         var result = this.scheme.processAuthenticationRequest(request, response, new HashMap<>());
         return result;
+    }
+
+    private boolean matchPostfixes(String username, String allowedPostfixes) throws Exception {
+        Method method = SamlAuthenticationScheme.class.getDeclaredMethod("matchPostfixes", String.class, String.class);
+        method.setAccessible(true);
+        return (Boolean) method.invoke(scheme, username, allowedPostfixes);
     }
 
 
