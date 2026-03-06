@@ -224,6 +224,36 @@ public class SamlAuthenticationSchemeTest {
     }
 
     @Test
+    public void doesNotRedirectToExternalRelayState() throws IOException, CertificateEncodingException, XPathException {
+        createSettings();
+
+        HttpAuthenticationResult result = simulateSAMLResponse(
+                "src/test/resources/saml_signed_message.xml",
+                null,
+                null,
+                null,
+                "https://evil.example/phishing");
+
+        assertThat(result.getType(), equalTo(HttpAuthenticationResult.Type.AUTHENTICATED));
+        assertThat(result.getRedirectUrl(), equalTo("/app/"));
+    }
+
+    @Test
+    public void allowsLocalRelayState() throws IOException, CertificateEncodingException, XPathException {
+        createSettings();
+
+        HttpAuthenticationResult result = simulateSAMLResponse(
+                "src/test/resources/saml_signed_message.xml",
+                null,
+                null,
+                null,
+                "http://test.lan/app/project.html?projectId=MyProject");
+
+        assertThat(result.getType(), equalTo(HttpAuthenticationResult.Type.AUTHENTICATED));
+        assertThat(result.getRedirectUrl(), equalTo("http://test.lan/app/project.html?projectId=MyProject"));
+    }
+
+    @Test
     public void allowsGettingNewUserFieldsFromSamlAttributes() throws IOException {
         var request = mock(HttpServletRequest.class);
         var samlResponsePath = "src/test/resources/saml_signed_with_attributes.xml";
@@ -531,6 +561,10 @@ public class SamlAuthenticationSchemeTest {
     }
 
     private HttpAuthenticationResult simulateSAMLResponse(String samlResponsePath, String metadataFilePath, String callbackUrl, String entityId) throws IOException, CertificateEncodingException, XPathException {
+        return simulateSAMLResponse(samlResponsePath, metadataFilePath, callbackUrl, entityId, null);
+    }
+
+    private HttpAuthenticationResult simulateSAMLResponse(String samlResponsePath, String metadataFilePath, String callbackUrl, String entityId, String relayState) throws IOException, CertificateEncodingException, XPathException {
         var request = mock(HttpServletRequest.class);
 
         if (entityId == null) {
@@ -553,6 +587,7 @@ public class SamlAuthenticationSchemeTest {
         }
 
         when(request.getRequestURL()).thenReturn(new StringBuffer(callbackUrl));
+        when(request.getContextPath()).thenReturn("/app");
 
         // built using https://capriza.github.io/samling/samling.html#samlPropertiesTab
         var saml = FileUtils.readFileToString(Paths.get(samlResponsePath).toAbsolutePath().toFile());
@@ -563,6 +598,7 @@ public class SamlAuthenticationSchemeTest {
 
         when(request.getParameterMap()).thenReturn(parameterMap);
         when(request.getParameter("SAMLResponse")).thenReturn(saml);
+        when(request.getParameter("RelayState")).thenReturn(relayState);
         var response = mock(HttpServletResponse.class);
         var result = this.scheme.processAuthenticationRequest(request, response, new HashMap<>());
         return result;

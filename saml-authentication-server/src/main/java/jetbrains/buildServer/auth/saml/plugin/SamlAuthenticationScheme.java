@@ -18,6 +18,7 @@ import jetbrains.buildServer.controllers.interceptors.auth.HttpAuthenticationSch
 import jetbrains.buildServer.controllers.interceptors.auth.util.HttpAuthUtil;
 import jetbrains.buildServer.groups.UserGroupManager;
 import jetbrains.buildServer.log.Loggers;
+import jetbrains.buildServer.serverSide.TeamCityProperties;
 import jetbrains.buildServer.serverSide.auth.AuthModuleType;
 import jetbrains.buildServer.serverSide.auth.LoginConfiguration;
 import jetbrains.buildServer.serverSide.auth.ServerPrincipal;
@@ -29,6 +30,7 @@ import jetbrains.buildServer.web.util.WebUtil;
 import lombok.var;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
@@ -209,9 +211,67 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
 
     @NotNull
     private static HttpAuthenticationResult authenticated(@NotNull HttpServletRequest request, SamlPluginSettings settings, SUser user, String relayState) {
+        String safeRelayState = getSafeRelayState(request, relayState);
         return HttpAuthenticationResult.authenticated(
                 new ServerPrincipal(user.getRealm(), user.getUsername(), null, settings.isCreateUsersAutomatically(), new HashMap<>()),
-                true).withRedirect(relayState != null ? relayState : getRedirectUrl(request));
+                true).withRedirect(safeRelayState != null ? safeRelayState : getRedirectUrl(request));
+    }
+
+    @Nullable
+    private static String getSafeRelayState(@NotNull HttpServletRequest request, @Nullable String relayState) {
+        if (StringUtil.isEmpty(relayState)) {
+            return null;
+        }
+
+        String candidate = relayState.trim();
+        if (candidate.isEmpty()) {
+            return null;
+        }
+
+        try {
+            URL relayStateUrl = new URL(candidate);
+            URL requestUrl = new URL(request.getRequestURL().toString());
+
+            if (!relayStateUrl.getProtocol().equalsIgnoreCase(requestUrl.getProtocol()) ||
+                !relayStateUrl.getHost().equalsIgnoreCase(requestUrl.getHost()) ||
+                getEffectivePort(relayStateUrl) != getEffectivePort(requestUrl)) {
+                Loggers.AUTH.warn(String.format("Rejected unsafe RelayState redirect '%s' because host/scheme/port mismatch", candidate));
+                return unsafeCandidate(candidate);
+            }
+
+            String contextPath = StringUtil.notNullize(request.getContextPath());
+            if (StringUtil.isNotEmpty(contextPath) && !"/".equals(contextPath)) {
+                String relayPath = StringUtil.notNullize(relayStateUrl.getPath());
+                if (!relayPath.equals(contextPath) && !relayPath.startsWith(contextPath + "/")) {
+                    Loggers.AUTH.warn(String.format("Rejected unsafe RelayState redirect '%s' because it is outside context path '%s'", candidate, contextPath));
+                    return unsafeCandidate(candidate);
+                }
+            }
+
+            return candidate;
+        } catch (MalformedURLException e) {
+            Loggers.AUTH.warn(String.format("Rejected malformed RelayState redirect '%s'", candidate));
+            return null;
+        }
+    }
+
+    @Nullable
+    private static String unsafeCandidate(String candidate) {
+        if (TeamCityProperties.getBoolean("teamcity.saml.relayState.strictValidation", true))
+            return null;
+        else
+            return candidate;
+    }
+
+    private static int getEffectivePort(@NotNull URL url) {
+        int port = url.getPort();
+        if (port != -1) {
+            return port;
+        }
+        if ("https".equalsIgnoreCase(url.getProtocol())) {
+            return 443;
+        }
+        return 80;
     }
 
     @NotNull
