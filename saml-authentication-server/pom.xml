@@ -45,7 +45,7 @@
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>6.1.5.Final</version>
+      <version>6.2.5.Final</version>
     </dependency>
 
     <dependency>
@@ -92,6 +92,12 @@
           <artifactId>xmlParserAPIs</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.santuario</groupId>
+      <artifactId>xmlsec</artifactId>
+      <version>2.3.4</version>
     </dependency>
 
 

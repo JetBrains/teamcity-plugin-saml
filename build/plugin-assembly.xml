@@ -25,6 +25,12 @@
                     <includes>
                          <include>*</include>
                     </includes>
+                    <excludes>
+                        <exclude>org.apache.commons:commons-lang3</exclude>
+                        <exclude>commons-beanutils:commons-beanutils</exclude>
+                        <exclude>com.fasterxml.woodstox:woodstox-core</exclude>
+                        <exclude>org.codehaus.woodstox:stax2-api</exclude>
+                    </excludes>
                </dependencySet>
            </dependencySets>
        </binaries>
