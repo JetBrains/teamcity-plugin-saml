@@ -40,3 +40,4 @@ servers
 *.css linguist-detectable=false
 .node
 /release.properties
+saml-authentication-server/src/main/vue/admin-ui/js-related-libraries.json
