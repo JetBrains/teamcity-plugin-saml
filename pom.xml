@@ -137,9 +137,9 @@
   </pluginRepositories>
 
   <scm>
-    <connection>scm:git:git@github.com:morincer/teamcity-plugin-saml.git</connection>
-    <url>https://github.com/morincer/teamcity-plugin-saml</url>
-    <developerConnection>scm:git:git@github.com:morincer/teamcity-plugin-saml.git</developerConnection>
+    <connection>scm:git:git@github.com:JetBrains/TeamCity.git</connection>
+    <url>https://github.com/JetBrains/TeamCity/tree/master/plugins/authentication/saml-authentication</url>
+    <developerConnection>scm:git:git@github.com:JetBrains/TeamCity.git</developerConnection>
     <tag>1.3.2</tag>
   </scm>
 </project>

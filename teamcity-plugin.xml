@@ -5,7 +5,7 @@
     <display-name>SAML Authentication</display-name>
     <version>@Version@</version>
     <description>The plug-in adds ability to authenticate users by SAML-based SSO providers (like Okta, Onelogin etc.)</description>
-    <download-url>https://github.com/JetBrains/teamcity-plugin-saml</download-url>
+    <download-url>https://github.com/JetBrains/TeamCity/tree/master/plugins/authentication/saml-authentication</download-url>
     <email>support@jetbrains.com</email>
     <vendor>
       <name>@VendorName@</name>
