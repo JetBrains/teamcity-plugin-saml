@@ -1,5 +1,9 @@
 # TeamCity SAML Authentication Plug-In
 
+> [!IMPORTANT]
+> This repository has moved. The SAML authentication plugin is now maintained in the TeamCity monorepo:
+> https://github.com/JetBrains/TeamCity/tree/master/plugins/authentication/saml-authentication
+
 [![Build status](https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:TeamCityPluginsByJetBrains_TeamcityPluginSaml_Build/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=TeamCityPluginsByJetBrains_TeamcityPluginSaml_Build)
 
 ## Overview
