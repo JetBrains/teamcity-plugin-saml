@@ -24,6 +24,7 @@ import jetbrains.buildServer.serverSide.auth.LoginConfiguration;
 import jetbrains.buildServer.serverSide.auth.ServerPrincipal;
 import jetbrains.buildServer.users.SUser;
 import jetbrains.buildServer.users.UserModel;
+import jetbrains.buildServer.users.VcsUsernamePropertyKey;
 import jetbrains.buildServer.users.impl.UserEx;
 import jetbrains.buildServer.util.StringUtil;
 import jetbrains.buildServer.web.util.WebUtil;
@@ -139,6 +140,7 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
             }
 
             String username = auth.getNameId();
+            boolean createdNewUser = false;
 
             SUser user = null;
 
@@ -156,20 +158,10 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
                         if (!settings.isLimitToPostfixes() || matchPostfixes(username, settings.getAllowedPostfixes())) {
                             LOG.info(String.format("Creating new user %s from SAML request", username));
                             user = userModel.createUserAccount(null, username);
+                            createdNewUser = true;
 
                             if (user == null) {
                                 LOG.warn(String.format("New user %s was not created due to unknown reason", username));
-                            } else {
-                                String email = getAttribute(auth, settings.getEmailAttributeMapping());
-                                String fullname = getAttribute(auth, settings.getNameAttributeMapping());
-                                String vcsUsername = getAttribute(auth, settings.getVcsUsernameAttributeMapping());
-
-                                LOG.info(String.format("Setting data for new user: username=%s, full name=%s, email=%s", username, fullname, email));
-
-                                user.updateUserAccount(username, fullname, email);
-                                if (StringUtil.isNotEmpty(vcsUsername)) {
-                                    ((UserEx)user).setDefaultVcsUsernames(Collections.singletonList(vcsUsername));
-                                }
                             }
                         }
                     } catch (Exception e) {
@@ -180,6 +172,41 @@ public class SamlAuthenticationScheme extends HttpAuthenticationSchemeAdapter {
 
             if (user == null) {
                 return sendUnauthorizedRequest(request, response, String.format("SAML request NOT authenticated for user id %s: user with such username or %s property value not found", username, SamlPluginConstants.ID_USER_PROPERTY_KEY));
+            }
+
+            String email = getAttribute(auth, settings.getEmailAttributeMapping());
+            String fullname = getAttribute(auth, settings.getNameAttributeMapping());
+            String vcsUsername = getAttribute(auth, settings.getVcsUsernameAttributeMapping());
+            UserEx userEx = (UserEx) user;
+
+            if(createdNewUser){
+                LOG.info(String.format("Setting data for new user: username=%s, full name=%s, email=%s", username, fullname, email));
+
+                user.updateUserAccount(username, fullname, email);
+                if (StringUtil.isNotEmpty(vcsUsername)) {
+                    userEx.setDefaultVcsUsernames(Collections.singletonList(vcsUsername));
+                }
+            } else {
+
+                boolean emailChanged = StringUtil.isNotEmpty(email) && !email.equals(user.getEmail());
+                boolean fullnameChanged = StringUtil.isNotEmpty(fullname) && !fullname.equals(user.getName());
+
+                if (emailChanged || fullnameChanged) {
+                    String updatedEmail = emailChanged ? email : user.getEmail();
+                    String updatedFullname = fullnameChanged ? fullname : user.getName();
+                    LOG.info(String.format("Updating user attributes for %s: full name=%s, email=%s", username, updatedFullname, updatedEmail));
+                    user.updateUserAccount(username, updatedFullname, updatedEmail);
+                }
+
+                if (StringUtil.isNotEmpty(vcsUsername)) {
+                    List<String> currentDefaultVCSUsernames = userEx.getVcsUsernames().get(new VcsUsernamePropertyKey(VcsUsernamePropertyKey.VCS_ROOT_PREFIX));
+                    if (!currentDefaultVCSUsernames.contains(vcsUsername)) {
+                        LOG.info(String.format("Updating VCS username for user %s: %s", username, vcsUsername));
+                        List<String> newDefaultVCSUsernames = new ArrayList<>(currentDefaultVCSUsernames);
+                        newDefaultVCSUsernames.add(vcsUsername);
+                        userEx.setDefaultVcsUsernames(newDefaultVCSUsernames);
+                    }
+                }
             }
 
             if (settings.isAssignGroups()) {
