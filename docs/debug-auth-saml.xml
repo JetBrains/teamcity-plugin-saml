@@ -357,7 +357,7 @@
     <Logger name="jetbrains.buildServer.serverSide.impl.versionedSettings" level="INFO" additivity="false">
       <AppenderRef ref="ROLL.VERSIONED_SETTINGS" />
     </Logger>
-    <Logger name="jetbrains.buildServer.serverSide.flakyTestDetector" level="WARN" additivity="false">
+    <Logger name="jetbrains.buildServer.serverSide.flakyTestDetector" level="INFO" additivity="false">
       <AppenderRef ref="FLAKY_TESTS.LOG" />
     </Logger>
     <Logger name="jetbrains.buildServer.ISSUE_TRACKERS" level="INFO" additivity="false">
