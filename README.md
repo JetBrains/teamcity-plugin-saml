@@ -1,3 +1,12 @@
+# Deprecation notice
+
+This repository has moved to the TeamCity core repository under
+  `https://github.com/JetBrains/TeamCity/tree/development/2026.2.x/opensource/saml-authentication`.
+
+Please make further changes there.
+
+---
+
 # TeamCity SAML Authentication Plug-In
 
 > [!IMPORTANT]
