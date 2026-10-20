@@ -1,3 +1,12 @@
+# Deprecation notice
+
+This repository has moved to the TeamCity core repository under
+  `https://github.com/JetBrains/TeamCity/tree/development/2026.1.x/opensource/saml-authentication`.
+
+Please make further changes there.
+
+---
+
 **IMPORTANT**: The plugin is now being maintained and supported by **JetBrains TeamCity team**. Please follow the fork at [https://github.com/JetBrains/teamcity-plugin-saml](https://github.com/JetBrains/teamcity-plugin-saml) to stay up-to-date.
 
 **Hey everyone, I’m sorry to say that I can’t actively maintain this project anymore — I just don’t have the time. That said, I’m still happy to review and accept pull requests, but I won’t be writing any new code myself. Feel free to fork it and keep it going! Huge thanks to everyone who contributed and supported this project—it really means a lot!**  
